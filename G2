@@ -1,0 +1,37 @@
+// server.js
+const express = require('express');
+const cors = require('cors');
+const mongoose = require('mongoose');
+const Product = require('./models/Product');
+
+const app = express();
+const PORT = process.env.PORT || 3001;
+const MONGODB_URI = 'mongodb://localhost:27017/ecommerce';
+
+app.use(cors());
+app.use(express.json());
+
+mongoose.connect(MONGODB_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+});
+
+const connection = mongoose.connection;
+connection.once('open', () => {
+  console.log('MongoDB database connection established successfully');
+});
+
+// Define routes
+app.get('/products', async (req, res) => {
+  try {
+    const products = await Product.find();
+    res.json(products);
+  } catch (error) {
+    console.error('Error fetching products:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+});
